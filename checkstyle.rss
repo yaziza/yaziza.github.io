@@ -25,9 +25,9 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2016</copyright>
     <item>
-      <title>File: 1210,
+      <title>File: 1211,
              Errors: 0,
-             Warnings: 22,
+             Warnings: 16,
              Infos: 0
       </title>
             <link>${project.url}/checkstyle.html</link>
@@ -1564,7 +1564,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  1
+                  0
                 </td>
                 <td>
                   0
@@ -7234,7 +7234,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  2
+                  0
                 </td>
                 <td>
                   0
@@ -7612,7 +7612,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  1
+                  0
                 </td>
                 <td>
                   0
@@ -9300,6 +9300,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="${project.url}/checkstyle.html#sevntu-checkstyle-with-excludes.sevntu-checks.src.main.java.com.github.sevntu.checkstyle.checks.coding.SingleBreakOrContinueCheck.java">sevntu-checkstyle-with-excludes/sevntu-checks/src/main/java/com/github/sevntu/checkstyle/checks/coding/SingleBreakOrContinueCheck.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="${project.url}/checkstyle.html#guava-mvnstyle.guava.src.com.google.common.collect.ForwardingCollection.java">guava-mvnstyle/guava/src/com/google/common/collect/ForwardingCollection.java</a>
                 </td>
                 <td>
@@ -9712,7 +9726,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  2
+                  1
                 </td>
                 <td>
                   0
@@ -12162,7 +12176,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  1
+                  0
                 </td>
                 <td>
                   0

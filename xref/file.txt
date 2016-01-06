@@ -14,10 +14,6 @@
 ./guava-mvnstyle/guava/src/com/google/common/util/concurrent/AbstractFuture.html
 ./guava-mvnstyle/guava/src/com/google/common/util/concurrent/CycleDetectingLockFactory.html
 ./sevntu-checkstyle-with-excludes/sevntu-checks/src/main/java/com/github/sevntu/checkstyle/checks/coding/CustomDeclarationOrderCheck.html
-./sevntu-checkstyle-with-excludes/sevntu-checks/src/main/java/com/github/sevntu/checkstyle/checks/coding/DiamondOperatorForVariableDefinitionCheck.html
-./sevntu-checkstyle-with-excludes/sevntu-checks/src/main/java/com/github/sevntu/checkstyle/checks/coding/EitherLogOrThrowCheck.html
-./sevntu-checkstyle-with-excludes/sevntu-checks/src/main/java/com/github/sevntu/checkstyle/checks/coding/ForbidInstantiationCheck.html
-./sevntu-checkstyle-with-excludes/sevntu-checks/src/main/java/com/github/sevntu/checkstyle/checks/coding/OverridableMethodInConstructorCheck.html
 allclasses-frame.html
 index.html
 overview-frame.html
