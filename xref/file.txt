@@ -13,6 +13,13 @@
 ./guava-mvnstyle/guava/src/com/google/common/io/ReaderInputStream.html
 ./guava-mvnstyle/guava/src/com/google/common/util/concurrent/AbstractFuture.html
 ./guava-mvnstyle/guava/src/com/google/common/util/concurrent/CycleDetectingLockFactory.html
+./guice/core/src/com/google/inject/Scopes.html
+./guice/core/src/com/google/inject/internal/ProviderMethodsModule.html
+./guice/core/src/com/google/inject/internal/SingletonScope.html
+./guice/core/src/com/google/inject/spi/InjectionPoint.html
+./guice/core/src/com/google/inject/util/Modules.html
+./guice/extensions/assistedinject/src/com/google/inject/assistedinject/FactoryProvider2.html
+./guice/extensions/persist/src/com/google/inject/persist/jpa/JpaFinderProxy.html
 ./sevntu-checkstyle-with-excludes/sevntu-checks/src/main/java/com/github/sevntu/checkstyle/checks/coding/CustomDeclarationOrderCheck.html
 allclasses-frame.html
 index.html
