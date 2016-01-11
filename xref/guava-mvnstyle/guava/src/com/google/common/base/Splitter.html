@@ -228,7 +228,7 @@
 <a class="jxr_linenumber" name="L220" href="#L220">220</a> <em class="jxr_javadoccomment">   *     empty string</em>
 <a class="jxr_linenumber" name="L221" href="#L221">221</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L222" href="#L222">222</a>   @CheckReturnValue
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>   @GwtIncompatible(<span class="jxr_string">"java.util.regex"</span>)
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>   @GwtIncompatible <em class="jxr_comment">// java.util.regex</em>
 <a class="jxr_linenumber" name="L224" href="#L224">224</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../com/google/common/base/Splitter.html">Splitter</a> on(<strong class="jxr_keyword">final</strong> Pattern separatorPattern) {
 <a class="jxr_linenumber" name="L225" href="#L225">225</a>     checkNotNull(separatorPattern);
 <a class="jxr_linenumber" name="L226" href="#L226">226</a>     checkArgument(
@@ -272,7 +272,7 @@
 <a class="jxr_linenumber" name="L264" href="#L264">264</a> <em class="jxr_javadoccomment">   *     empty string</em>
 <a class="jxr_linenumber" name="L265" href="#L265">265</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L266" href="#L266">266</a>   @CheckReturnValue
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>   @GwtIncompatible(<span class="jxr_string">"java.util.regex"</span>)
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>   @GwtIncompatible <em class="jxr_comment">// java.util.regex</em>
 <a class="jxr_linenumber" name="L268" href="#L268">268</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../com/google/common/base/Splitter.html">Splitter</a> onPattern(String separatorPattern) {
 <a class="jxr_linenumber" name="L269" href="#L269">269</a>     <strong class="jxr_keyword">return</strong> on(Pattern.compile(separatorPattern));
 <a class="jxr_linenumber" name="L270" href="#L270">270</a>   }

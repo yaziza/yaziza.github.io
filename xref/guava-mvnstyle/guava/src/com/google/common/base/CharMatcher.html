@@ -442,7 +442,7 @@
 <a class="jxr_linenumber" name="L434" href="#L434">434</a> <em class="jxr_javadoccomment">   * scenario, it constructs an eight-kilobyte bit array and queries that.</em>
 <a class="jxr_linenumber" name="L435" href="#L435">435</a> <em class="jxr_javadoccomment">   * In many situations this produces a matcher which is faster to query than the original.</em>
 <a class="jxr_linenumber" name="L436" href="#L436">436</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L437" href="#L437">437</a>   @GwtIncompatible(<span class="jxr_string">"java.util.BitSet"</span>)
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>   @GwtIncompatible <em class="jxr_comment">// java.util.BitSet</em>
 <a class="jxr_linenumber" name="L438" href="#L438">438</a>   <a href="../../../../com/google/common/base/CharMatcher.html">CharMatcher</a> precomputedInternal() {
 <a class="jxr_linenumber" name="L439" href="#L439">439</a>     <strong class="jxr_keyword">final</strong> BitSet table = <strong class="jxr_keyword">new</strong> BitSet();
 <a class="jxr_linenumber" name="L440" href="#L440">440</a>     setBits(table);
@@ -472,7 +472,7 @@
 <a class="jxr_linenumber" name="L464" href="#L464">464</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L465" href="#L465">465</a> <em class="jxr_javadoccomment">   * Helper method for {@link #precomputedInternal} that doesn't test if the negation is cheaper.</em>
 <a class="jxr_linenumber" name="L466" href="#L466">466</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L467" href="#L467">467</a>   @GwtIncompatible(<span class="jxr_string">"java.util.BitSet"</span>)
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>   @GwtIncompatible <em class="jxr_comment">// java.util.BitSet</em>
 <a class="jxr_linenumber" name="L468" href="#L468">468</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../com/google/common/base/CharMatcher.html">CharMatcher</a> precomputedPositive(
 <a class="jxr_linenumber" name="L469" href="#L469">469</a>       <strong class="jxr_keyword">int</strong> totalCharacters, BitSet table, String description) {
 <a class="jxr_linenumber" name="L470" href="#L470">470</a>     <strong class="jxr_keyword">switch</strong> (totalCharacters) {
@@ -491,7 +491,7 @@
 <a class="jxr_linenumber" name="L483" href="#L483">483</a>     }
 <a class="jxr_linenumber" name="L484" href="#L484">484</a>   }
 <a class="jxr_linenumber" name="L485" href="#L485">485</a> 
-<a class="jxr_linenumber" name="L486" href="#L486">486</a>   @GwtIncompatible(<span class="jxr_string">"SmallCharMatcher"</span>)
+<a class="jxr_linenumber" name="L486" href="#L486">486</a>   @GwtIncompatible <em class="jxr_comment">// SmallCharMatcher</em>
 <a class="jxr_linenumber" name="L487" href="#L487">487</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> isSmall(<strong class="jxr_keyword">int</strong> totalCharacters, <strong class="jxr_keyword">int</strong> tableLength) {
 <a class="jxr_linenumber" name="L488" href="#L488">488</a>     <strong class="jxr_keyword">return</strong> totalCharacters &lt;= SmallCharMatcher.MAX_SIZE
 <a class="jxr_linenumber" name="L489" href="#L489">489</a>         &amp;&amp; tableLength &gt; (totalCharacters * 4 * Character.SIZE);
@@ -501,7 +501,7 @@
 <a class="jxr_linenumber" name="L493" href="#L493">493</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L494" href="#L494">494</a> <em class="jxr_javadoccomment">   * Sets bits in {@code table} matched by this matcher.</em>
 <a class="jxr_linenumber" name="L495" href="#L495">495</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L496" href="#L496">496</a>   @GwtIncompatible(<span class="jxr_string">"java.util.BitSet"</span>)
+<a class="jxr_linenumber" name="L496" href="#L496">496</a>   @GwtIncompatible <em class="jxr_comment">// java.util.BitSet</em>
 <a class="jxr_linenumber" name="L497" href="#L497">497</a>   <strong class="jxr_keyword">void</strong> setBits(BitSet table) {
 <a class="jxr_linenumber" name="L498" href="#L498">498</a>     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> c = Character.MAX_VALUE; c &gt;= Character.MIN_VALUE; c--) {
 <a class="jxr_linenumber" name="L499" href="#L499">499</a>       <strong class="jxr_keyword">if</strong> (matches((<strong class="jxr_keyword">char</strong>) c)) {
@@ -1002,7 +1002,7 @@
 <a class="jxr_linenumber" name="L994" href="#L994">994</a>   }
 <a class="jxr_linenumber" name="L995" href="#L995">995</a> 
 <a class="jxr_linenumber" name="L996" href="#L996">996</a>   <em class="jxr_javadoccomment">/** Fast matcher using a {@link BitSet} table of matching characters. */</em>
-<a class="jxr_linenumber" name="L997" href="#L997">997</a>   @GwtIncompatible(<span class="jxr_string">"java.util.BitSet"</span>)
+<a class="jxr_linenumber" name="L997" href="#L997">997</a>   @GwtIncompatible <em class="jxr_comment">// java.util.BitSet</em>
 <a class="jxr_linenumber" name="L998" href="#L998">998</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../com/google/common/base/CharMatcher.html">BitSetMatcher</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../com/google/common/base/CharMatcher.html">NamedFastMatcher</a> {
 <a class="jxr_linenumber" name="L999" href="#L999">999</a> 
 <a class="jxr_linenumber" name="L1000" href="#L1000">1000</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> BitSet table;
@@ -1252,7 +1252,7 @@
 <a class="jxr_linenumber" name="L1244" href="#L1244">1244</a>       <strong class="jxr_keyword">return</strong> TABLE.charAt((MULTIPLIER * c) &gt;&gt;&gt; SHIFT) == c;
 <a class="jxr_linenumber" name="L1245" href="#L1245">1245</a>     }
 <a class="jxr_linenumber" name="L1246" href="#L1246">1246</a> 
-<a class="jxr_linenumber" name="L1247" href="#L1247">1247</a>     @GwtIncompatible(<span class="jxr_string">"java.util.BitSet"</span>)
+<a class="jxr_linenumber" name="L1247" href="#L1247">1247</a>     @GwtIncompatible <em class="jxr_comment">// java.util.BitSet</em>
 <a class="jxr_linenumber" name="L1248" href="#L1248">1248</a>     @Override
 <a class="jxr_linenumber" name="L1249" href="#L1249">1249</a>     <strong class="jxr_keyword">void</strong> setBits(BitSet table) {
 <a class="jxr_linenumber" name="L1250" href="#L1250">1250</a>       <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; TABLE.length(); i++) {
@@ -1534,7 +1534,7 @@
 <a class="jxr_linenumber" name="L1526" href="#L1526">1526</a>       <strong class="jxr_keyword">return</strong> sequence.length() - original.countIn(sequence);
 <a class="jxr_linenumber" name="L1527" href="#L1527">1527</a>     }
 <a class="jxr_linenumber" name="L1528" href="#L1528">1528</a> 
-<a class="jxr_linenumber" name="L1529" href="#L1529">1529</a>     @GwtIncompatible(<span class="jxr_string">"java.util.BitSet"</span>)
+<a class="jxr_linenumber" name="L1529" href="#L1529">1529</a>     @GwtIncompatible <em class="jxr_comment">// java.util.BitSet</em>
 <a class="jxr_linenumber" name="L1530" href="#L1530">1530</a>     @Override
 <a class="jxr_linenumber" name="L1531" href="#L1531">1531</a>     <strong class="jxr_keyword">void</strong> setBits(BitSet table) {
 <a class="jxr_linenumber" name="L1532" href="#L1532">1532</a>       BitSet tmp = <strong class="jxr_keyword">new</strong> BitSet();
@@ -1570,7 +1570,7 @@
 <a class="jxr_linenumber" name="L1562" href="#L1562">1562</a>       <strong class="jxr_keyword">return</strong> first.matches(c) &amp;&amp; second.matches(c);
 <a class="jxr_linenumber" name="L1563" href="#L1563">1563</a>     }
 <a class="jxr_linenumber" name="L1564" href="#L1564">1564</a> 
-<a class="jxr_linenumber" name="L1565" href="#L1565">1565</a>     @GwtIncompatible(<span class="jxr_string">"java.util.BitSet"</span>)
+<a class="jxr_linenumber" name="L1565" href="#L1565">1565</a>     @GwtIncompatible <em class="jxr_comment">// java.util.BitSet</em>
 <a class="jxr_linenumber" name="L1566" href="#L1566">1566</a>     @Override
 <a class="jxr_linenumber" name="L1567" href="#L1567">1567</a>     <strong class="jxr_keyword">void</strong> setBits(BitSet table) {
 <a class="jxr_linenumber" name="L1568" href="#L1568">1568</a>       BitSet tmp1 = <strong class="jxr_keyword">new</strong> BitSet();
@@ -1598,7 +1598,7 @@
 <a class="jxr_linenumber" name="L1590" href="#L1590">1590</a>       second = checkNotNull(b);
 <a class="jxr_linenumber" name="L1591" href="#L1591">1591</a>     }
 <a class="jxr_linenumber" name="L1592" href="#L1592">1592</a> 
-<a class="jxr_linenumber" name="L1593" href="#L1593">1593</a>     @GwtIncompatible(<span class="jxr_string">"java.util.BitSet"</span>)
+<a class="jxr_linenumber" name="L1593" href="#L1593">1593</a>     @GwtIncompatible <em class="jxr_comment">// java.util.BitSet</em>
 <a class="jxr_linenumber" name="L1594" href="#L1594">1594</a>     @Override
 <a class="jxr_linenumber" name="L1595" href="#L1595">1595</a>     <strong class="jxr_keyword">void</strong> setBits(BitSet table) {
 <a class="jxr_linenumber" name="L1596" href="#L1596">1596</a>       first.setBits(table);
@@ -1652,7 +1652,7 @@
 <a class="jxr_linenumber" name="L1644" href="#L1644">1644</a>       <strong class="jxr_keyword">return</strong> isNot(match);
 <a class="jxr_linenumber" name="L1645" href="#L1645">1645</a>     }
 <a class="jxr_linenumber" name="L1646" href="#L1646">1646</a> 
-<a class="jxr_linenumber" name="L1647" href="#L1647">1647</a>     @GwtIncompatible(<span class="jxr_string">"java.util.BitSet"</span>)
+<a class="jxr_linenumber" name="L1647" href="#L1647">1647</a>     @GwtIncompatible <em class="jxr_comment">// java.util.BitSet</em>
 <a class="jxr_linenumber" name="L1648" href="#L1648">1648</a>     @Override
 <a class="jxr_linenumber" name="L1649" href="#L1649">1649</a>     <strong class="jxr_keyword">void</strong> setBits(BitSet table) {
 <a class="jxr_linenumber" name="L1650" href="#L1650">1650</a>       table.set(match);
@@ -1688,7 +1688,7 @@
 <a class="jxr_linenumber" name="L1680" href="#L1680">1680</a>       <strong class="jxr_keyword">return</strong> other.matches(match) ? any() : <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L1681" href="#L1681">1681</a>     }
 <a class="jxr_linenumber" name="L1682" href="#L1682">1682</a> 
-<a class="jxr_linenumber" name="L1683" href="#L1683">1683</a>     @GwtIncompatible(<span class="jxr_string">"java.util.BitSet"</span>)
+<a class="jxr_linenumber" name="L1683" href="#L1683">1683</a>     @GwtIncompatible <em class="jxr_comment">// java.util.BitSet</em>
 <a class="jxr_linenumber" name="L1684" href="#L1684">1684</a>     @Override
 <a class="jxr_linenumber" name="L1685" href="#L1685">1685</a>     <strong class="jxr_keyword">void</strong> setBits(BitSet table) {
 <a class="jxr_linenumber" name="L1686" href="#L1686">1686</a>       table.set(0, match);
@@ -1726,7 +1726,7 @@
 <a class="jxr_linenumber" name="L1718" href="#L1718">1718</a>       <strong class="jxr_keyword">return</strong> c == match1 || c == match2;
 <a class="jxr_linenumber" name="L1719" href="#L1719">1719</a>     }
 <a class="jxr_linenumber" name="L1720" href="#L1720">1720</a> 
-<a class="jxr_linenumber" name="L1721" href="#L1721">1721</a>     @GwtIncompatible(<span class="jxr_string">"java.util.BitSet"</span>)
+<a class="jxr_linenumber" name="L1721" href="#L1721">1721</a>     @GwtIncompatible <em class="jxr_comment">// java.util.BitSet</em>
 <a class="jxr_linenumber" name="L1722" href="#L1722">1722</a>     @Override
 <a class="jxr_linenumber" name="L1723" href="#L1723">1723</a>     <strong class="jxr_keyword">void</strong> setBits(BitSet table) {
 <a class="jxr_linenumber" name="L1724" href="#L1724">1724</a>       table.set(match1);
@@ -1755,7 +1755,7 @@
 <a class="jxr_linenumber" name="L1747" href="#L1747">1747</a>     }
 <a class="jxr_linenumber" name="L1748" href="#L1748">1748</a> 
 <a class="jxr_linenumber" name="L1749" href="#L1749">1749</a>     @Override
-<a class="jxr_linenumber" name="L1750" href="#L1750">1750</a>     @GwtIncompatible(<span class="jxr_string">"java.util.BitSet"</span>)
+<a class="jxr_linenumber" name="L1750" href="#L1750">1750</a>     @GwtIncompatible <em class="jxr_comment">// java.util.BitSet</em>
 <a class="jxr_linenumber" name="L1751" href="#L1751">1751</a>     <strong class="jxr_keyword">void</strong> setBits(BitSet table) {
 <a class="jxr_linenumber" name="L1752" href="#L1752">1752</a>       <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">char</strong> c : chars) {
 <a class="jxr_linenumber" name="L1753" href="#L1753">1753</a>         table.set(c);
@@ -1790,7 +1790,7 @@
 <a class="jxr_linenumber" name="L1782" href="#L1782">1782</a>       <strong class="jxr_keyword">return</strong> startInclusive &lt;= c &amp;&amp; c &lt;= endInclusive;
 <a class="jxr_linenumber" name="L1783" href="#L1783">1783</a>     }
 <a class="jxr_linenumber" name="L1784" href="#L1784">1784</a> 
-<a class="jxr_linenumber" name="L1785" href="#L1785">1785</a>     @GwtIncompatible(<span class="jxr_string">"java.util.BitSet"</span>)
+<a class="jxr_linenumber" name="L1785" href="#L1785">1785</a>     @GwtIncompatible <em class="jxr_comment">// java.util.BitSet</em>
 <a class="jxr_linenumber" name="L1786" href="#L1786">1786</a>     @Override
 <a class="jxr_linenumber" name="L1787" href="#L1787">1787</a>     <strong class="jxr_keyword">void</strong> setBits(BitSet table) {
 <a class="jxr_linenumber" name="L1788" href="#L1788">1788</a>       table.set(startInclusive, endInclusive + 1);

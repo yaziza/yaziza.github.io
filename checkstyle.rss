@@ -25,9 +25,9 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2016</copyright>
     <item>
-      <title>File: 1568,
+      <title>File: 1567,
              Errors: 0,
-             Warnings: 24,
+             Warnings: 29,
              Infos: 0
       </title>
             <link>${project.url}/checkstyle.html</link>
@@ -976,7 +976,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  0
+                  1
                 </td>
                 <td>
                   0
@@ -4756,7 +4756,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  0
+                  2
                 </td>
                 <td>
                   0
@@ -6380,7 +6380,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  1
+                  2
                 </td>
                 <td>
                   0
@@ -13478,7 +13478,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  1
+                  0
                 </td>
                 <td>
                   0
@@ -15774,7 +15774,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  0
+                  1
                 </td>
                 <td>
                   0
@@ -16875,20 +16875,6 @@ under the License.
                           <tr>
                 <td>
                   <a href="${project.url}/checkstyle.html#guice.core.src.com.google.inject.spi.RequireExplicitBindingsOption.java">guice/core/src/com/google/inject/spi/RequireExplicitBindingsOption.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="${project.url}/checkstyle.html#sevntu-checkstyle-with-excludes.sevntu-checks.src.main.java.com.github.sevntu.checkstyle.checks.coding.SingleBreakOrContinueCheck.java">sevntu-checkstyle-with-excludes/sevntu-checks/src/main/java/com/github/sevntu/checkstyle/checks/coding/SingleBreakOrContinueCheck.java</a>
                 </td>
                 <td>
                   0
@@ -18658,7 +18644,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  0
+                  1
                 </td>
                 <td>
                   0

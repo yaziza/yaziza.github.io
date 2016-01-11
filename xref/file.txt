@@ -1,5 +1,4 @@
 ./checkstyle-with-excludes/src/main/java/com/puppycrawl/tools/checkstyle/checks/modifier/RedundantModifierCheck.html
-./guava-mvnstyle/guava-testlib/src/com/google/common/collect/testing/AbstractIteratorTester.html
 ./guava-mvnstyle/guava-testlib/src/com/google/common/testing/ClassSanityTester.html
 ./guava-mvnstyle/guava-testlib/src/com/google/common/testing/ForwardingWrapperTester.html
 ./guava-mvnstyle/guava/src/com/google/common/base/Ascii.html
@@ -21,6 +20,10 @@
 ./guice/extensions/assistedinject/src/com/google/inject/assistedinject/FactoryProvider2.html
 ./guice/extensions/persist/src/com/google/inject/persist/jpa/JpaFinderProxy.html
 ./sevntu-checkstyle-with-excludes/sevntu-checks/src/main/java/com/github/sevntu/checkstyle/checks/coding/CustomDeclarationOrderCheck.html
+./sevntu-checkstyle-with-excludes/sevntu-checks/src/main/java/com/github/sevntu/checkstyle/checks/coding/DiamondOperatorForVariableDefinitionCheck.html
+./sevntu-checkstyle-with-excludes/sevntu-checks/src/main/java/com/github/sevntu/checkstyle/checks/coding/EitherLogOrThrowCheck.html
+./sevntu-checkstyle-with-excludes/sevntu-checks/src/main/java/com/github/sevntu/checkstyle/checks/coding/ForbidInstantiationCheck.html
+./sevntu-checkstyle-with-excludes/sevntu-checks/src/main/java/com/github/sevntu/checkstyle/checks/coding/OverridableMethodInConstructorCheck.html
 allclasses-frame.html
 index.html
 overview-frame.html
