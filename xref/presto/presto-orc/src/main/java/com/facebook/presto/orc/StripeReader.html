@@ -1,0 +1,443 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>StripeReader xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../../../../apidocs/com/facebook/presto/orc/StripeReader.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Licensed under the Apache License, Version 2.0 (the "License");</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * you may not use this file except in compliance with the License.</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> *     <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">package</strong> com.facebook.presto.orc;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> com.facebook.presto.orc.checkpoint.InvalidCheckpointException;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> com.facebook.presto.orc.checkpoint.StreamCheckpoint;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> com.facebook.presto.orc.memory.AbstractAggregatedMemoryContext;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> com.facebook.presto.orc.memory.AggregatedMemoryContext;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> com.facebook.presto.orc.metadata.ColumnEncoding;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> com.facebook.presto.orc.metadata.ColumnEncoding.ColumnEncodingKind;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> com.facebook.presto.orc.metadata.ColumnStatistics;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> com.facebook.presto.orc.metadata.CompressionKind;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> com.facebook.presto.orc.metadata.MetadataReader;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> com.facebook.presto.orc.metadata.OrcType;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> com.facebook.presto.orc.metadata.OrcType.OrcTypeKind;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> com.facebook.presto.orc.metadata.RowGroupIndex;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> com.facebook.presto.orc.metadata.Stream;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> com.facebook.presto.orc.metadata.Stream.StreamKind;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> com.facebook.presto.orc.metadata.StripeFooter;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> com.facebook.presto.orc.metadata.StripeInformation;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> com.facebook.presto.orc.stream.OrcInputStream;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> com.facebook.presto.orc.stream.StreamSource;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> com.facebook.presto.orc.stream.StreamSources;
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> com.facebook.presto.orc.stream.ValueStream;
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> com.facebook.presto.orc.stream.ValueStreamSource;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> com.facebook.presto.orc.stream.ValueStreams;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> com.google.common.base.Predicates;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> com.google.common.collect.ImmutableList;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> com.google.common.collect.ImmutableMap;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> com.google.common.collect.ImmutableSet;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> com.google.common.collect.Maps;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> com.google.common.primitives.Ints;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> io.airlift.slice.FixedLengthSliceInput;
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> io.airlift.slice.Slices;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> java.io.InputStream;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> java.util.HashMap;
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">import</strong> java.util.LinkedHashSet;
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <strong class="jxr_keyword">import</strong> java.util.Map.Entry;
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <strong class="jxr_keyword">import</strong> java.util.Set;
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> com.facebook.presto.orc.checkpoint.Checkpoints.getDictionaryStreamCheckpoint;
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> com.facebook.presto.orc.checkpoint.Checkpoints.getStreamCheckpoints;
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> com.facebook.presto.orc.metadata.ColumnEncoding.ColumnEncodingKind.DICTIONARY;
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> com.facebook.presto.orc.metadata.ColumnEncoding.ColumnEncodingKind.DICTIONARY_V2;
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> com.facebook.presto.orc.metadata.Stream.StreamKind.DICTIONARY_COUNT;
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> com.facebook.presto.orc.metadata.Stream.StreamKind.DICTIONARY_DATA;
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> com.facebook.presto.orc.metadata.Stream.StreamKind.LENGTH;
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> com.facebook.presto.orc.metadata.Stream.StreamKind.ROW_INDEX;
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> com.facebook.presto.orc.stream.CheckpointStreamSource.createCheckpointStreamSource;
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> com.google.common.base.Preconditions.checkArgument;
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.util.Objects.requireNonNull;
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../com/facebook/presto/orc/StripeReader.html">StripeReader</a>
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  {
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../com/facebook/presto/orc/OrcDataSource.html">OrcDataSource</a> orcDataSource;
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../com/facebook/presto/orc/metadata/CompressionKind.html">CompressionKind</a> compressionKind;
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> List&lt;OrcType&gt; types;
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> bufferSize;
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Set&lt;Integer&gt; includedOrcColumns;
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> rowsInRowGroup;
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../com/facebook/presto/orc/OrcPredicate.html">OrcPredicate</a> predicate;
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../com/facebook/presto/orc/metadata/MetadataReader.html">MetadataReader</a> metadataReader;
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../com/facebook/presto/orc/StripeReader.html">StripeReader</a>(<a href="../../../../com/facebook/presto/orc/OrcDataSource.html">OrcDataSource</a> orcDataSource,
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>              <a href="../../../../com/facebook/presto/orc/metadata/CompressionKind.html">CompressionKind</a> compressionKind,
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>              List&lt;OrcType&gt; types,
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>              <strong class="jxr_keyword">int</strong> bufferSize,
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>              Set&lt;Integer&gt; includedColumns,
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>              <strong class="jxr_keyword">int</strong> rowsInRowGroup,
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>              <a href="../../../../com/facebook/presto/orc/OrcPredicate.html">OrcPredicate</a> predicate,
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>              <a href="../../../../com/facebook/presto/orc/metadata/MetadataReader.html">MetadataReader</a> metadataReader)
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>      {
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          <strong class="jxr_keyword">this</strong>.orcDataSource = requireNonNull(orcDataSource, <span class="jxr_string">"orcDataSource is null"</span>);
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          <strong class="jxr_keyword">this</strong>.compressionKind = requireNonNull(compressionKind, <span class="jxr_string">"compressionKind is null"</span>);
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>          <strong class="jxr_keyword">this</strong>.types = ImmutableList.copyOf(requireNonNull(types, <span class="jxr_string">"types is null"</span>));
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          <strong class="jxr_keyword">this</strong>.bufferSize = bufferSize;
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          <strong class="jxr_keyword">this</strong>.includedOrcColumns = getIncludedOrcColumns(types, requireNonNull(includedColumns, <span class="jxr_string">"includedColumns is null"</span>));
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          <strong class="jxr_keyword">this</strong>.rowsInRowGroup = rowsInRowGroup;
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          <strong class="jxr_keyword">this</strong>.predicate = requireNonNull(predicate, <span class="jxr_string">"predicate is null"</span>);
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>          <strong class="jxr_keyword">this</strong>.metadataReader = requireNonNull(metadataReader, <span class="jxr_string">"metadataReader is null"</span>);
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>      }
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>  
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../com/facebook/presto/orc/Stripe.html">Stripe</a> readStripe(<a href="../../../../com/facebook/presto/orc/metadata/StripeInformation.html">StripeInformation</a> stripe, <a href="../../../../com/facebook/presto/orc/memory/AggregatedMemoryContext.html">AggregatedMemoryContext</a> systemMemoryUsage)
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>              <strong class="jxr_keyword">throws</strong> IOException
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>     {
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>         <em class="jxr_comment">// read the stripe footer</em>
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>         <a href="../../../../com/facebook/presto/orc/metadata/StripeFooter.html">StripeFooter</a> stripeFooter = readStripeFooter(stripe, systemMemoryUsage);
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         List&lt;ColumnEncoding&gt; columnEncodings = stripeFooter.getColumnEncodings();
+<a class="jxr_linenumber" name="L104" href="#L104">104</a> 
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         <em class="jxr_comment">// get streams for selected columns</em>
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         Map&lt;StreamId, Stream&gt; streams = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>         <strong class="jxr_keyword">boolean</strong> hasRowGroupDictionary = false;
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>         <strong class="jxr_keyword">for</strong> (Stream stream : stripeFooter.getStreams()) {
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>             <strong class="jxr_keyword">if</strong> (includedOrcColumns.contains(stream.getColumn())) {
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>                 streams.put(<strong class="jxr_keyword">new</strong> <a href="../../../../com/facebook/presto/orc/StreamId.html">StreamId</a>(stream), stream);
+<a class="jxr_linenumber" name="L111" href="#L111">111</a> 
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>                 <a href="../../../../com/facebook/presto/orc/metadata/ColumnEncoding.html">ColumnEncodingKind</a> columnEncoding = columnEncodings.get(stream.getColumn()).getColumnEncodingKind();
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>                 <strong class="jxr_keyword">if</strong> (columnEncoding == DICTIONARY &amp;&amp; stream.getStreamKind() == StreamKind.IN_DICTIONARY) {
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>                     hasRowGroupDictionary = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>                 }
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>             }
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>         }
+<a class="jxr_linenumber" name="L118" href="#L118">118</a> 
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>         <em class="jxr_comment">// handle stripes with more than one row group or a dictionary</em>
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         <strong class="jxr_keyword">if</strong> ((stripe.getNumberOfRows() &gt; rowsInRowGroup) || hasRowGroupDictionary) {
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>             <em class="jxr_comment">// determine ranges of the stripe to read</em>
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>             Map&lt;StreamId, DiskRange&gt; diskRanges = getDiskRanges(stripeFooter.getStreams());
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>             diskRanges = Maps.filterKeys(diskRanges, Predicates.in(streams.keySet()));
+<a class="jxr_linenumber" name="L124" href="#L124">124</a> 
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>             <em class="jxr_comment">// read the file regions</em>
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>             Map&lt;StreamId, OrcInputStream&gt; streamsData = readDiskRanges(stripe.getOffset(), diskRanges, systemMemoryUsage);
+<a class="jxr_linenumber" name="L127" href="#L127">127</a> 
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>             <em class="jxr_comment">// read the row index for each column</em>
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>             Map&lt;Integer, List&lt;RowGroupIndex&gt;&gt; columnIndexes = readColumnIndexes(streams, streamsData);
+<a class="jxr_linenumber" name="L130" href="#L130">130</a> 
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>             <em class="jxr_comment">// select the row groups matching the tuple domain</em>
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>             Set&lt;Integer&gt; selectedRowGroups = selectRowGroups(stripe, columnIndexes);
+<a class="jxr_linenumber" name="L133" href="#L133">133</a> 
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>             <em class="jxr_comment">// if all row groups are skipped, return null</em>
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>             <strong class="jxr_keyword">if</strong> (selectedRowGroups.isEmpty()) {
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>                 <em class="jxr_comment">// set accounted memory usage to zero</em>
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>                 systemMemoryUsage.close();
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>             }
+<a class="jxr_linenumber" name="L140" href="#L140">140</a> 
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>             <em class="jxr_comment">// value streams</em>
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>             Map&lt;StreamId, ValueStream&lt;?&gt;&gt; valueStreams = createValueStreams(streams, streamsData, columnEncodings);
+<a class="jxr_linenumber" name="L143" href="#L143">143</a> 
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>             <em class="jxr_comment">// build the dictionary streams</em>
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>             <a href="../../../../com/facebook/presto/orc/stream/StreamSources.html">StreamSources</a> dictionaryStreamSources = createDictionaryStreamSources(streams, valueStreams, columnEncodings);
+<a class="jxr_linenumber" name="L146" href="#L146">146</a> 
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>             <em class="jxr_comment">// build the row groups</em>
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>             <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>                 List&lt;RowGroup&gt; rowGroups = createRowGroups(
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>                         stripe.getNumberOfRows(),
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>                         streams,
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>                         valueStreams,
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>                         columnIndexes,
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>                         selectedRowGroups,
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>                         columnEncodings);
+<a class="jxr_linenumber" name="L156" href="#L156">156</a> 
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../com/facebook/presto/orc/Stripe.html">Stripe</a>(stripe.getNumberOfRows(), columnEncodings, rowGroups, dictionaryStreamSources);
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>             }
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>             <strong class="jxr_keyword">catch</strong> (InvalidCheckpointException e) {
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>                 <em class="jxr_comment">// The ORC file contains a corrupt checkpoint stream</em>
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>                 <em class="jxr_comment">// If the file does not have a row group dictionary, treat the stripe as a single row group. Otherwise,</em>
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>                 <em class="jxr_comment">// we must fail because the length of the row group dictionary is contained in the checkpoint stream.</em>
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>                 <strong class="jxr_keyword">if</strong> (hasRowGroupDictionary) {
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../com/facebook/presto/orc/OrcCorruptionException.html">OrcCorruptionException</a>(e, <span class="jxr_string">"ORC file %s has corrupt checkpoints"</span>, orcDataSource);
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>                 }
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>             }
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>         }
+<a class="jxr_linenumber" name="L168" href="#L168">168</a> 
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>         <em class="jxr_comment">// stripe only has one row group and no dictionary</em>
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>         ImmutableMap.Builder&lt;StreamId, DiskRange&gt; diskRangesBuilder = ImmutableMap.builder();
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>         <strong class="jxr_keyword">for</strong> (Entry&lt;StreamId, DiskRange&gt; entry : getDiskRanges(stripeFooter.getStreams()).entrySet()) {
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>             <a href="../../../../com/facebook/presto/orc/StreamId.html">StreamId</a> streamId = entry.getKey();
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>             <strong class="jxr_keyword">if</strong> (streamId.getStreamKind() != ROW_INDEX &amp;&amp; streams.keySet().contains(streamId)) {
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>                 diskRangesBuilder.put(entry);
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>             }
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>         }
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>         ImmutableMap&lt;StreamId, DiskRange&gt; diskRanges = diskRangesBuilder.build();
+<a class="jxr_linenumber" name="L178" href="#L178">178</a> 
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>         <em class="jxr_comment">// read the file regions</em>
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>         Map&lt;StreamId, OrcInputStream&gt; streamsData = readDiskRanges(stripe.getOffset(), diskRanges, systemMemoryUsage);
+<a class="jxr_linenumber" name="L181" href="#L181">181</a> 
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>         <em class="jxr_comment">// value streams</em>
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>         Map&lt;StreamId, ValueStream&lt;?&gt;&gt; valueStreams = createValueStreams(streams, streamsData, columnEncodings);
+<a class="jxr_linenumber" name="L184" href="#L184">184</a> 
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>         <em class="jxr_comment">// build the dictionary streams</em>
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>         <a href="../../../../com/facebook/presto/orc/stream/StreamSources.html">StreamSources</a> dictionaryStreamSources = createDictionaryStreamSources(streams, valueStreams, columnEncodings);
+<a class="jxr_linenumber" name="L187" href="#L187">187</a> 
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>         <em class="jxr_comment">// build the row group</em>
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>         ImmutableMap.Builder&lt;StreamId, StreamSource&lt;?&gt;&gt; builder = ImmutableMap.builder();
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>         <strong class="jxr_keyword">for</strong> (Entry&lt;StreamId, ValueStream&lt;?&gt;&gt; entry : valueStreams.entrySet()) {
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>             builder.put(entry.getKey(), <strong class="jxr_keyword">new</strong> ValueStreamSource&lt;&gt;(entry.getValue()));
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>         }
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>         <a href="../../../../com/facebook/presto/orc/RowGroup.html">RowGroup</a> rowGroup = <strong class="jxr_keyword">new</strong> <a href="../../../../com/facebook/presto/orc/RowGroup.html">RowGroup</a>(0, 0, stripe.getNumberOfRows(), <strong class="jxr_keyword">new</strong> StreamSources(builder.build()));
+<a class="jxr_linenumber" name="L194" href="#L194">194</a> 
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../com/facebook/presto/orc/Stripe.html">Stripe</a>(stripe.getNumberOfRows(), columnEncodings, ImmutableList.of(rowGroup), dictionaryStreamSources);
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>     }
+<a class="jxr_linenumber" name="L197" href="#L197">197</a> 
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>     <strong class="jxr_keyword">public</strong> Map&lt;StreamId, OrcInputStream&gt; readDiskRanges(<strong class="jxr_keyword">long</strong> stripeOffset, Map&lt;StreamId, DiskRange&gt; diskRanges, <a href="../../../../com/facebook/presto/orc/memory/AbstractAggregatedMemoryContext.html">AbstractAggregatedMemoryContext</a> systemMemoryUsage)
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>             <strong class="jxr_keyword">throws</strong> IOException
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>     {
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>         <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>         <em class="jxr_comment">// Note: this code does not use the Java 8 stream APIs to avoid any extra object allocation</em>
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>         <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L204" href="#L204">204</a> 
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>         <em class="jxr_comment">// transform ranges to have an absolute offset in file</em>
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>         ImmutableMap.Builder&lt;StreamId, DiskRange&gt; diskRangesBuilder = ImmutableMap.builder();
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>         <strong class="jxr_keyword">for</strong> (Entry&lt;StreamId, DiskRange&gt; entry : diskRanges.entrySet()) {
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>             <a href="../../../../com/facebook/presto/orc/DiskRange.html">DiskRange</a> diskRange = entry.getValue();
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>             diskRangesBuilder.put(entry.getKey(), <strong class="jxr_keyword">new</strong> DiskRange(stripeOffset + diskRange.getOffset(), diskRange.getLength()));
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>         }
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>         diskRanges = diskRangesBuilder.build();
+<a class="jxr_linenumber" name="L212" href="#L212">212</a> 
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>         <em class="jxr_comment">// read ranges</em>
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>         Map&lt;StreamId, FixedLengthSliceInput&gt; streamsData = orcDataSource.readFully(diskRanges);
+<a class="jxr_linenumber" name="L215" href="#L215">215</a> 
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>         <em class="jxr_comment">// transform streams to OrcInputStream</em>
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>         String sourceName = orcDataSource.toString();
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>         ImmutableMap.Builder&lt;StreamId, OrcInputStream&gt; streamsBuilder = ImmutableMap.builder();
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>         <strong class="jxr_keyword">for</strong> (Entry&lt;StreamId, FixedLengthSliceInput&gt; entry : streamsData.entrySet()) {
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>             streamsBuilder.put(entry.getKey(), <strong class="jxr_keyword">new</strong> OrcInputStream(sourceName, entry.getValue(), compressionKind, bufferSize, systemMemoryUsage));
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>         }
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>         <strong class="jxr_keyword">return</strong> streamsBuilder.build();
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>     }
+<a class="jxr_linenumber" name="L224" href="#L224">224</a> 
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>     <strong class="jxr_keyword">private</strong> Map&lt;StreamId, ValueStream&lt;?&gt;&gt; createValueStreams(Map&lt;StreamId, Stream&gt; streams, Map&lt;StreamId, OrcInputStream&gt; streamsData, List&lt;ColumnEncoding&gt; columnEncodings)
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>     {
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>         ImmutableMap.Builder&lt;StreamId, ValueStream&lt;?&gt;&gt; valueStreams = ImmutableMap.builder();
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>         <strong class="jxr_keyword">for</strong> (Entry&lt;StreamId, Stream&gt; entry : streams.entrySet()) {
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>             <a href="../../../../com/facebook/presto/orc/StreamId.html">StreamId</a> streamId = entry.getKey();
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>             <a href="../../../../com/facebook/presto/orc/metadata/Stream.html">Stream</a> stream = entry.getValue();
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>             <a href="../../../../com/facebook/presto/orc/metadata/ColumnEncoding.html">ColumnEncodingKind</a> columnEncoding = columnEncodings.get(stream.getColumn()).getColumnEncodingKind();
+<a class="jxr_linenumber" name="L232" href="#L232">232</a> 
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>             <em class="jxr_comment">// skip index and empty streams</em>
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>             <strong class="jxr_keyword">if</strong> (isIndexStream(stream) || stream.getLength() == 0) {
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>                 <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>             }
+<a class="jxr_linenumber" name="L237" href="#L237">237</a> 
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>             <a href="../../../../com/facebook/presto/orc/stream/OrcInputStream.html">OrcInputStream</a> inputStream = streamsData.get(streamId);
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>             <a href="../../../../com/facebook/presto/orc/metadata/OrcType.html">OrcTypeKind</a> columnType = types.get(stream.getColumn()).getOrcTypeKind();
+<a class="jxr_linenumber" name="L240" href="#L240">240</a> 
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>             valueStreams.put(streamId, ValueStreams.createValueStreams(streamId, inputStream, columnType, columnEncoding, stream.isUseVInts()));
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>         }
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>         <strong class="jxr_keyword">return</strong> valueStreams.build();
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>     }
+<a class="jxr_linenumber" name="L245" href="#L245">245</a> 
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../com/facebook/presto/orc/stream/StreamSources.html">StreamSources</a> createDictionaryStreamSources(Map&lt;StreamId, Stream&gt; streams, Map&lt;StreamId, ValueStream&lt;?&gt;&gt; valueStreams, List&lt;ColumnEncoding&gt; columnEncodings)
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>     {
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>         ImmutableMap.Builder&lt;StreamId, StreamSource&lt;?&gt;&gt; dictionaryStreamBuilder = ImmutableMap.builder();
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>         <strong class="jxr_keyword">for</strong> (Entry&lt;StreamId, Stream&gt; entry : streams.entrySet()) {
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>             <a href="../../../../com/facebook/presto/orc/StreamId.html">StreamId</a> streamId = entry.getKey();
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>             <a href="../../../../com/facebook/presto/orc/metadata/Stream.html">Stream</a> stream = entry.getValue();
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>             <strong class="jxr_keyword">int</strong> column = stream.getColumn();
+<a class="jxr_linenumber" name="L253" href="#L253">253</a> 
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>             <em class="jxr_comment">// only process dictionary streams</em>
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>             <a href="../../../../com/facebook/presto/orc/metadata/ColumnEncoding.html">ColumnEncodingKind</a> columnEncoding = columnEncodings.get(column).getColumnEncodingKind();
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>             <strong class="jxr_keyword">if</strong> (!isDictionary(stream, columnEncoding)) {
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>                 <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>             }
+<a class="jxr_linenumber" name="L259" href="#L259">259</a> 
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>             <em class="jxr_comment">// skip streams without data</em>
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>             ValueStream&lt;?&gt; valueStream = valueStreams.get(streamId);
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>             <strong class="jxr_keyword">if</strong> (valueStream == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>                 <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>             }
+<a class="jxr_linenumber" name="L265" href="#L265">265</a> 
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>             <a href="../../../../com/facebook/presto/orc/metadata/OrcType.html">OrcTypeKind</a> columnType = types.get(stream.getColumn()).getOrcTypeKind();
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>             <a href="../../../../com/facebook/presto/orc/checkpoint/StreamCheckpoint.html">StreamCheckpoint</a> streamCheckpoint = getDictionaryStreamCheckpoint(streamId, columnType, columnEncoding);
+<a class="jxr_linenumber" name="L268" href="#L268">268</a> 
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>             StreamSource&lt;?&gt; streamSource = createCheckpointStreamSource(valueStream, streamCheckpoint);
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>             dictionaryStreamBuilder.put(streamId, streamSource);
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>         }
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../com/facebook/presto/orc/stream/StreamSources.html">StreamSources</a>(dictionaryStreamBuilder.build());
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>     }
+<a class="jxr_linenumber" name="L274" href="#L274">274</a> 
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>     <strong class="jxr_keyword">private</strong> List&lt;RowGroup&gt; createRowGroups(
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>             <strong class="jxr_keyword">int</strong> rowsInStripe,
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>             Map&lt;StreamId, Stream&gt; streams,
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>             Map&lt;StreamId, ValueStream&lt;?&gt;&gt; valueStreams,
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>             Map&lt;Integer, List&lt;RowGroupIndex&gt;&gt; columnIndexes,
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>             Set&lt;Integer&gt; selectedRowGroups,
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>             List&lt;ColumnEncoding&gt; encodings)
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>             <strong class="jxr_keyword">throws</strong> <a href="../../../../com/facebook/presto/orc/checkpoint/InvalidCheckpointException.html">InvalidCheckpointException</a>
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>     {
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>         ImmutableList.Builder&lt;RowGroup&gt; rowGroupBuilder = ImmutableList.builder();
+<a class="jxr_linenumber" name="L285" href="#L285">285</a> 
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> rowGroupId : selectedRowGroups) {
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>             Map&lt;StreamId, StreamCheckpoint&gt; checkpoints = getStreamCheckpoints(includedOrcColumns, types, compressionKind, rowGroupId, encodings, streams, columnIndexes);
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>             <strong class="jxr_keyword">int</strong> rowOffset = rowGroupId * rowsInRowGroup;
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>             <strong class="jxr_keyword">int</strong> rowsInGroup = Math.min(rowsInStripe - rowOffset, rowsInRowGroup);
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>             rowGroupBuilder.add(createRowGroup(rowGroupId, rowOffset, rowsInGroup, valueStreams, checkpoints));
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>         }
+<a class="jxr_linenumber" name="L292" href="#L292">292</a> 
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>         <strong class="jxr_keyword">return</strong> rowGroupBuilder.build();
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>     }
+<a class="jxr_linenumber" name="L295" href="#L295">295</a> 
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../com/facebook/presto/orc/RowGroup.html">RowGroup</a> createRowGroup(<strong class="jxr_keyword">int</strong> groupId, <strong class="jxr_keyword">int</strong> rowOffset, <strong class="jxr_keyword">int</strong> rowCount, Map&lt;StreamId, ValueStream&lt;?&gt;&gt; valueStreams, Map&lt;StreamId, StreamCheckpoint&gt; checkpoints)
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>     {
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>         ImmutableMap.Builder&lt;StreamId, StreamSource&lt;?&gt;&gt; builder = ImmutableMap.builder();
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>         <strong class="jxr_keyword">for</strong> (Entry&lt;StreamId, StreamCheckpoint&gt; entry : checkpoints.entrySet()) {
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>             <a href="../../../../com/facebook/presto/orc/StreamId.html">StreamId</a> streamId = entry.getKey();
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>             <a href="../../../../com/facebook/presto/orc/checkpoint/StreamCheckpoint.html">StreamCheckpoint</a> checkpoint = entry.getValue();
+<a class="jxr_linenumber" name="L302" href="#L302">302</a> 
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>             <em class="jxr_comment">// skip streams without data</em>
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>             ValueStream&lt;?&gt; valueStream = valueStreams.get(streamId);
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>             <strong class="jxr_keyword">if</strong> (valueStream == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>                 <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>             }
+<a class="jxr_linenumber" name="L308" href="#L308">308</a> 
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>             builder.put(streamId, createCheckpointStreamSource(valueStream, checkpoint));
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>         }
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>         <a href="../../../../com/facebook/presto/orc/stream/StreamSources.html">StreamSources</a> rowGroupStreams = <strong class="jxr_keyword">new</strong> <a href="../../../../com/facebook/presto/orc/stream/StreamSources.html">StreamSources</a>(builder.build());
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../com/facebook/presto/orc/RowGroup.html">RowGroup</a>(groupId, rowOffset, rowCount, rowGroupStreams);
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>     }
+<a class="jxr_linenumber" name="L314" href="#L314">314</a> 
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../com/facebook/presto/orc/metadata/StripeFooter.html">StripeFooter</a> readStripeFooter(<a href="../../../../com/facebook/presto/orc/metadata/StripeInformation.html">StripeInformation</a> stripe, <a href="../../../../com/facebook/presto/orc/memory/AbstractAggregatedMemoryContext.html">AbstractAggregatedMemoryContext</a> systemMemoryUsage)
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>             <strong class="jxr_keyword">throws</strong> IOException
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>     {
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>         <strong class="jxr_keyword">long</strong> offset = stripe.getOffset() + stripe.getIndexLength() + stripe.getDataLength();
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>         <strong class="jxr_keyword">int</strong> tailLength = Ints.checkedCast(stripe.getFooterLength());
+<a class="jxr_linenumber" name="L320" href="#L320">320</a> 
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>         <em class="jxr_comment">// read the footer</em>
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>         byte[] tailBuffer = <strong class="jxr_keyword">new</strong> byte[tailLength];
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>         orcDataSource.readFully(offset, tailBuffer);
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>         <strong class="jxr_keyword">try</strong> (InputStream inputStream = <strong class="jxr_keyword">new</strong> OrcInputStream(orcDataSource.toString(), Slices.wrappedBuffer(tailBuffer).getInput(), compressionKind, bufferSize, systemMemoryUsage)) {
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>             <strong class="jxr_keyword">return</strong> metadataReader.readStripeFooter(types, inputStream);
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>         }
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>     }
+<a class="jxr_linenumber" name="L328" href="#L328">328</a> 
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>     <strong class="jxr_keyword">private</strong> Map&lt;Integer, List&lt;RowGroupIndex&gt;&gt; readColumnIndexes(Map&lt;StreamId, Stream&gt; streams, Map&lt;StreamId, OrcInputStream&gt; streamsData)
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>             <strong class="jxr_keyword">throws</strong> IOException
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>     {
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>         ImmutableMap.Builder&lt;Integer, List&lt;RowGroupIndex&gt;&gt; columnIndexes = ImmutableMap.builder();
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>         <strong class="jxr_keyword">for</strong> (Entry&lt;StreamId, Stream&gt; entry : streams.entrySet()) {
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>             <a href="../../../../com/facebook/presto/orc/metadata/Stream.html">Stream</a> stream = entry.getValue();
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>             <strong class="jxr_keyword">if</strong> (stream.getStreamKind() == ROW_INDEX) {
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>                 <a href="../../../../com/facebook/presto/orc/stream/OrcInputStream.html">OrcInputStream</a> inputStream = streamsData.get(entry.getKey());
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>                 columnIndexes.put(stream.getColumn(), metadataReader.readRowIndexes(inputStream));
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>             }
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>         }
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>         <strong class="jxr_keyword">return</strong> columnIndexes.build();
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>     }
+<a class="jxr_linenumber" name="L342" href="#L342">342</a> 
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>     <strong class="jxr_keyword">private</strong> Set&lt;Integer&gt; selectRowGroups(<a href="../../../../com/facebook/presto/orc/metadata/StripeInformation.html">StripeInformation</a> stripe,  Map&lt;Integer, List&lt;RowGroupIndex&gt;&gt; columnIndexes)
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>             <strong class="jxr_keyword">throws</strong> IOException
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>     {
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>         <strong class="jxr_keyword">int</strong> rowsInStripe = Ints.checkedCast(stripe.getNumberOfRows());
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>         <strong class="jxr_keyword">int</strong> groupsInStripe = ceil(rowsInStripe, rowsInRowGroup);
+<a class="jxr_linenumber" name="L348" href="#L348">348</a> 
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>         ImmutableSet.Builder&lt;Integer&gt; selectedRowGroups = ImmutableSet.builder();
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>         <strong class="jxr_keyword">int</strong> remainingRows = rowsInStripe;
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> rowGroup = 0; rowGroup &lt; groupsInStripe; ++rowGroup) {
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>             <strong class="jxr_keyword">int</strong> rows = Math.min(remainingRows, rowsInRowGroup);
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>             Map&lt;Integer, ColumnStatistics&gt; statistics = getRowGroupStatistics(types.get(0), columnIndexes, rowGroup);
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>             <strong class="jxr_keyword">if</strong> (predicate.matches(rows, statistics)) {
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>                 selectedRowGroups.add(rowGroup);
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>             }
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>             remainingRows -= rows;
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>         }
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>         <strong class="jxr_keyword">return</strong> selectedRowGroups.build();
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>     }
+<a class="jxr_linenumber" name="L361" href="#L361">361</a> 
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;Integer, ColumnStatistics&gt; getRowGroupStatistics(<a href="../../../../com/facebook/presto/orc/metadata/OrcType.html">OrcType</a> rootStructType, Map&lt;Integer, List&lt;RowGroupIndex&gt;&gt; columnIndexes, <strong class="jxr_keyword">int</strong> rowGroup)
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>     {
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>         requireNonNull(rootStructType, <span class="jxr_string">"rootStructType is null"</span>);
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>         checkArgument(rootStructType.getOrcTypeKind() == OrcTypeKind.STRUCT);
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>         requireNonNull(columnIndexes, <span class="jxr_string">"columnIndexes is null"</span>);
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>         checkArgument(rowGroup &gt;= 0, <span class="jxr_string">"rowGroup is negative"</span>);
+<a class="jxr_linenumber" name="L368" href="#L368">368</a> 
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>         ImmutableMap.Builder&lt;Integer, ColumnStatistics&gt; statistics = ImmutableMap.builder();
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> ordinal = 0; ordinal &lt; rootStructType.getFieldCount(); ordinal++) {
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>             List&lt;RowGroupIndex&gt; rowGroupIndexes = columnIndexes.get(rootStructType.getFieldTypeIndex(ordinal));
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>             <strong class="jxr_keyword">if</strong> (rowGroupIndexes != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>                 statistics.put(ordinal, rowGroupIndexes.get(rowGroup).getColumnStatistics());
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>             }
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>         }
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>         <strong class="jxr_keyword">return</strong> statistics.build();
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>     }
+<a class="jxr_linenumber" name="L378" href="#L378">378</a> 
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> isIndexStream(<a href="../../../../com/facebook/presto/orc/metadata/Stream.html">Stream</a> stream)
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>     {
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>         <strong class="jxr_keyword">return</strong> stream.getStreamKind() == ROW_INDEX || stream.getStreamKind() == DICTIONARY_COUNT;
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>     }
+<a class="jxr_linenumber" name="L383" href="#L383">383</a> 
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> isDictionary(<a href="../../../../com/facebook/presto/orc/metadata/Stream.html">Stream</a> stream, <a href="../../../../com/facebook/presto/orc/metadata/ColumnEncoding.html">ColumnEncodingKind</a> columnEncoding)
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>     {
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>         <strong class="jxr_keyword">return</strong> stream.getStreamKind() == DICTIONARY_DATA || (stream.getStreamKind() == LENGTH &amp;&amp; (columnEncoding == DICTIONARY || columnEncoding == DICTIONARY_V2));
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>     }
+<a class="jxr_linenumber" name="L388" href="#L388">388</a> 
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;StreamId, DiskRange&gt; getDiskRanges(List&lt;Stream&gt; streams)
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>     {
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>         ImmutableMap.Builder&lt;StreamId, DiskRange&gt; streamDiskRanges = ImmutableMap.builder();
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>         <strong class="jxr_keyword">long</strong> stripeOffset = 0;
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>         <strong class="jxr_keyword">for</strong> (Stream stream : streams) {
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>             <strong class="jxr_keyword">int</strong> streamLength = Ints.checkedCast(stream.getLength());
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>             streamDiskRanges.put(<strong class="jxr_keyword">new</strong> <a href="../../../../com/facebook/presto/orc/StreamId.html">StreamId</a>(stream), <strong class="jxr_keyword">new</strong> <a href="../../../../com/facebook/presto/orc/DiskRange.html">DiskRange</a>(stripeOffset, streamLength));
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>             stripeOffset += streamLength;
+<a class="jxr_linenumber" name="L397" href="#L397">397</a>         }
+<a class="jxr_linenumber" name="L398" href="#L398">398</a>         <strong class="jxr_keyword">return</strong> streamDiskRanges.build();
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>     }
+<a class="jxr_linenumber" name="L400" href="#L400">400</a> 
+<a class="jxr_linenumber" name="L401" href="#L401">401</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Set&lt;Integer&gt; getIncludedOrcColumns(List&lt;OrcType&gt; types, Set&lt;Integer&gt; includedColumns)
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>     {
+<a class="jxr_linenumber" name="L403" href="#L403">403</a>         Set&lt;Integer&gt; includes = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;&gt;();
+<a class="jxr_linenumber" name="L404" href="#L404">404</a> 
+<a class="jxr_linenumber" name="L405" href="#L405">405</a>         <a href="../../../../com/facebook/presto/orc/metadata/OrcType.html">OrcType</a> root = types.get(0);
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> includedColumn : includedColumns) {
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>             includeOrcColumnsRecursive(types, includes, root.getFieldTypeIndex(includedColumn));
+<a class="jxr_linenumber" name="L408" href="#L408">408</a>         }
+<a class="jxr_linenumber" name="L409" href="#L409">409</a> 
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>         <strong class="jxr_keyword">return</strong> includes;
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>     }
+<a class="jxr_linenumber" name="L412" href="#L412">412</a> 
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> includeOrcColumnsRecursive(List&lt;OrcType&gt; types, Set&lt;Integer&gt; result, <strong class="jxr_keyword">int</strong> typeId)
+<a class="jxr_linenumber" name="L414" href="#L414">414</a>     {
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>         result.add(typeId);
+<a class="jxr_linenumber" name="L416" href="#L416">416</a>         <a href="../../../../com/facebook/presto/orc/metadata/OrcType.html">OrcType</a> type = types.get(typeId);
+<a class="jxr_linenumber" name="L417" href="#L417">417</a>         <strong class="jxr_keyword">int</strong> children = type.getFieldCount();
+<a class="jxr_linenumber" name="L418" href="#L418">418</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; children; ++i) {
+<a class="jxr_linenumber" name="L419" href="#L419">419</a>             includeOrcColumnsRecursive(types, result, type.getFieldTypeIndex(i));
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>         }
+<a class="jxr_linenumber" name="L421" href="#L421">421</a>     }
+<a class="jxr_linenumber" name="L422" href="#L422">422</a> 
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L424" href="#L424">424</a> <em class="jxr_javadoccomment">     * Ceiling of integer division</em>
+<a class="jxr_linenumber" name="L425" href="#L425">425</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L426" href="#L426">426</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> ceil(<strong class="jxr_keyword">int</strong> dividend, <strong class="jxr_keyword">int</strong> divisor)
+<a class="jxr_linenumber" name="L427" href="#L427">427</a>     {
+<a class="jxr_linenumber" name="L428" href="#L428">428</a>         <strong class="jxr_keyword">return</strong> ((dividend + divisor) - 1) / divisor;
+<a class="jxr_linenumber" name="L429" href="#L429">429</a>     }
+<a class="jxr_linenumber" name="L430" href="#L430">430</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2016. All rights reserved.</div>
+</body>
+</html>
