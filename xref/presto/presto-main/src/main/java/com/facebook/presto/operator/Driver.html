@@ -87,7 +87,7 @@
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>      @GuardedBy(<span class="jxr_string">"exclusiveLock"</span>)
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;PlanNodeId, TaskSource&gt; currentSources = <strong class="jxr_keyword">new</strong> ConcurrentHashMap&lt;&gt;();
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>  
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <strong class="jxr_keyword">private</strong> enum <a href="../../../../com/google/common/base/AbstractIterator.html">State</a>
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <strong class="jxr_keyword">private</strong> enum <a href="../../../../com/facebook/presto/operator/WindowOperator.html">State</a>
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>      {
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>          ALIVE, NEED_DESTRUCTION, DESTROYED
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>      }
@@ -545,7 +545,7 @@
 <a class="jxr_linenumber" name="L537" href="#L537">537</a>         <strong class="jxr_keyword">return</strong> inFlightException;
 <a class="jxr_linenumber" name="L538" href="#L538">538</a>     }
 <a class="jxr_linenumber" name="L539" href="#L539">539</a> 
-<a class="jxr_linenumber" name="L540" href="#L540">540</a>     <strong class="jxr_keyword">private</strong> <a href="../../../../com/facebook/presto/operator/Driver.html">DriverLockResult</a> tryLockAndProcessPendingStateChanges(<strong class="jxr_keyword">int</strong> timeout, <a href="../../../../java/util/concurrent/TimeUnit.html">TimeUnit</a> unit)
+<a class="jxr_linenumber" name="L540" href="#L540">540</a>     <strong class="jxr_keyword">private</strong> <a href="../../../../com/facebook/presto/operator/Driver.html">DriverLockResult</a> tryLockAndProcessPendingStateChanges(<strong class="jxr_keyword">int</strong> timeout, TimeUnit unit)
 <a class="jxr_linenumber" name="L541" href="#L541">541</a>     {
 <a class="jxr_linenumber" name="L542" href="#L542">542</a>         checkLockNotHeld(<span class="jxr_string">"Can not acquire the driver lock while already holding the driver lock"</span>);
 <a class="jxr_linenumber" name="L543" href="#L543">543</a> 
@@ -579,12 +579,12 @@
 <a class="jxr_linenumber" name="L571" href="#L571">571</a>     {
 <a class="jxr_linenumber" name="L572" href="#L572">572</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> acquired;
 <a class="jxr_linenumber" name="L573" href="#L573">573</a> 
-<a class="jxr_linenumber" name="L574" href="#L574">574</a>         <strong class="jxr_keyword">private</strong> <a href="../../../../com/facebook/presto/operator/Driver.html">DriverLockResult</a>(<strong class="jxr_keyword">int</strong> timeout, <a href="../../../../java/util/concurrent/TimeUnit.html">TimeUnit</a> unit)
+<a class="jxr_linenumber" name="L574" href="#L574">574</a>         <strong class="jxr_keyword">private</strong> <a href="../../../../com/facebook/presto/operator/Driver.html">DriverLockResult</a>(<strong class="jxr_keyword">int</strong> timeout, TimeUnit unit)
 <a class="jxr_linenumber" name="L575" href="#L575">575</a>         {
 <a class="jxr_linenumber" name="L576" href="#L576">576</a>             acquired = tryAcquire(timeout, unit);
 <a class="jxr_linenumber" name="L577" href="#L577">577</a>         }
 <a class="jxr_linenumber" name="L578" href="#L578">578</a> 
-<a class="jxr_linenumber" name="L579" href="#L579">579</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> tryAcquire(<strong class="jxr_keyword">int</strong> timeout, <a href="../../../../java/util/concurrent/TimeUnit.html">TimeUnit</a> unit)
+<a class="jxr_linenumber" name="L579" href="#L579">579</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> tryAcquire(<strong class="jxr_keyword">int</strong> timeout, TimeUnit unit)
 <a class="jxr_linenumber" name="L580" href="#L580">580</a>         {
 <a class="jxr_linenumber" name="L581" href="#L581">581</a>             <strong class="jxr_keyword">boolean</strong> acquired = false;
 <a class="jxr_linenumber" name="L582" href="#L582">582</a>             <strong class="jxr_keyword">try</strong> {

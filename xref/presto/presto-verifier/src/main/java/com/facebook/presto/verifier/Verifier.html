@@ -78,7 +78,7 @@
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>      <em class="jxr_comment">// Returns number of failed queries</em>
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> run(List&lt;QueryPair&gt; queries)
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>              <strong class="jxr_keyword">throws</strong> <a href="../../../../java/lang/InterruptedException.html">InterruptedException</a>
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>              <strong class="jxr_keyword">throws</strong> InterruptedException
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>      {
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>          ExecutorService executor = newFixedThreadPool(threadCount);
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>          CompletionService&lt;Validator&gt; completionService = <strong class="jxr_keyword">new</strong> ExecutorCompletionService&lt;&gt;(executor);
@@ -222,7 +222,7 @@
 <a class="jxr_linenumber" name="L214" href="#L214">214</a>     }
 <a class="jxr_linenumber" name="L215" href="#L215">215</a> 
 <a class="jxr_linenumber" name="L216" href="#L216">216</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> &lt;T&gt; T takeUnchecked(CompletionService&lt;T&gt; completionService)
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>             <strong class="jxr_keyword">throws</strong> <a href="../../../../java/lang/InterruptedException.html">InterruptedException</a>
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>             <strong class="jxr_keyword">throws</strong> InterruptedException
 <a class="jxr_linenumber" name="L218" href="#L218">218</a>     {
 <a class="jxr_linenumber" name="L219" href="#L219">219</a>         <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L220" href="#L220">220</a>             <strong class="jxr_keyword">return</strong> completionService.take().get();
