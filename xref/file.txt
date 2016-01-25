@@ -1,3 +1,12 @@
+./findbugs/findbugs/src/java/edu/umd/cs/findbugs/FindBugs.html
+./findbugs/findbugsTestCases/src/java/bugIdeas/Ideas_2011_12_19.html
+./findbugs/findbugsTestCases/src/java/sfBugs/Bug2843625.html
+./findbugs/findbugsTestCases/src/java/sfBugs/Bug2928673.html
+./findbugs/findbugsTestCases/src/java/sfBugs/Bug3584224.html
+./findbugs/findbugsTestCases/src/java7/sfBugs/Bug3458246.html
+./google-guice-9f0fb56/core/src/com/google/inject/internal/BytecodeGen.html
+./google-guice-9f0fb56/core/test/com/google/inject/LoggerInjectionTest.html
+./google-guice-9f0fb56/extensions/assistedinject/src/com/google/inject/assistedinject/FactoryProvider2.html
 ./sevntu-checkstyle/sevntu-checks/src/test/resources/com/github/sevntu/checkstyle/checks/coding/InputAvoidModifiersForTypesCheck.html
 allclasses-frame.html
 index.html
